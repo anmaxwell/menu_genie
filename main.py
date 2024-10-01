@@ -83,21 +83,25 @@ def header():
 def prompt_box():
   with me.box(
     style=me.Style(
-      padding=me.Padding(
-        top=24,
-        bottom=36,
-      ),
+      border_radius=16,
+      padding=me.Padding.all(8),
+      background="white",
+      display="flex",
+      width="100%",
     )
   ):
-    me.text(
-      "Prompt",
-      style=me.Style(
-        font_size=36,
-        font_weight=700,
-        background="linear-gradient(90deg, #4285F4, #AA5CDB, #DB4437) text",
-        color="transparent",
-      ),
-    )
+    with me.box(style=me.Style(flex_grow=1)):
+      me.native_textarea(
+        placeholder="Enter your ingredients here for a delicious recipe...",
+        style=me.Style(
+          padding=me.Padding(top=16, left=16),
+          width="100%",
+          height=150,
+          border=me.Border.all(me.BorderSide(width=1, style="solid")),
+          ),
+        )
+    with me.content_button(type="icon"):
+      me.icon("send")
 
 def set_gemini_api_key(e: me.InputBlurEvent):
     me.state(State).gemini_api_key = e.value
