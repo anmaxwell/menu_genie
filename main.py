@@ -3,6 +3,7 @@ import mesop as me
 @me.stateclass
 class State:
   is_open: bool = False
+  gemini_api_key: str = ""
 
 @me.page(path="/")
 def page():
@@ -19,8 +20,7 @@ def page():
       )
     ):
       header()
-      test_layout()
-      apikey_input()
+      dialog_box()
   footer()
 
 def header():
@@ -42,30 +42,20 @@ def header():
       ),
     )
 
-def test_layout():
+def set_gemini_api_key(e: me.InputBlurEvent):
+    me.state(State).gemini_api_key = e.value
+
+def dialog_box():
   state = me.state(State)
 
   with dialog(state.is_open):
-    me.text("Delete File", type="headline-5")
-    with me.box():
-      me.text(text="Would you like to delete cat.jpeg?")
-      me.button("No", on_click=on_click_close_dialog)
-      
-
-
-  with me.box(style=me.Style(padding=me.Padding.all(30))):
-    me.button(
-      "Open Dialog", type="flat", color="primary", on_click=on_click_open_dialog
-    )
-
-def apikey_input():
-  with me.box(
-     style=me.Style(
-        display="flex",
-        flex_direction="row",
-        justify_content="right")
-    ):
-     me.button("API Key", type="stroked")
+    with me.box(style=me.Style(display="flex", flex_direction="column")):
+        me.input(
+            label="Gemini API Key",
+            value=state.gemini_api_key,
+            on_blur=set_gemini_api_key,
+        )
+        me.button("Confirm", on_click=on_click_close_dialog)
 
 def footer():
   with me.box(
@@ -81,6 +71,13 @@ def footer():
     me.html(
       "Made with <a href='https://google.github.io/mesop/'>Mesop</a>",
     )
+    with me.box(
+     style=me.Style(
+        display="flex",
+        flex_direction="row",
+        justify_content="right")
+    ):
+     me.button("API Key", type="stroked", color="primary", on_click=on_click_open_dialog)
 
 def on_click_close_dialog(e: me.ClickEvent):
   state = me.state(State)
@@ -96,25 +93,13 @@ def on_click_open_dialog(e: me.ClickEvent):
 def dialog(is_open: bool):
   """Renders a dialog component.
 
-  The design of the dialog borrows from the Angular component dialog. So basically
-  rounded corners and some box shadow.
-
-  One current drawback is that it's not possible to close the dialog
-  by clicking on the overlay background. This is due to
-  https://github.com/google/mesop/issues/268.
-
   Args:
     is_open: Whether the dialog is visible or not.
   """
   with me.box(
     style=me.Style(
-      background="rgba(0, 0, 0, 0.4)"
-      if me.theme_brightness() == "light"
-      else "rgba(255, 255, 255, 0.4)",
       display="block" if is_open else "none",
       height="100%",
-      overflow_x="auto",
-      overflow_y="auto",
       position="fixed",
       width="100%",
       z_index=1000,
@@ -124,7 +109,7 @@ def dialog(is_open: bool):
       style=me.Style(
         place_items="center",
         display="grid",
-        height="100vh",
+        height="90vh",
       )
     ):
       with me.box(
