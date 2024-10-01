@@ -153,5 +153,16 @@ def navigate(event: me.ClickEvent):
   me.navigate("/about")
 
 @me.page(path="/about")
-def about():
-  me.text("This is the about page")
+def page():
+  with me.box(style=me.Style(display="flex", flex_direction="row")):
+    with me.box(style=me.Style(background="red", height=50, width="75%")):
+      me.text("test text")
+    with me.box(style=me.Style(background="blue", height=100, width="25%")):
+      me.text("second test",
+      style=me.Style(
+        font_size=36,
+        font_weight=700,
+        background="linear-gradient(90deg, #4285F4, #AA5CDB, #DB4437) text",
+        color="transparent",
+        text_align="right"
+      ),)
