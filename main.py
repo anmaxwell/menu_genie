@@ -7,6 +7,7 @@ class State:
 
 @me.page(path="/")
 def page():
+  dialog_box()
   with me.box(
     style=me.Style(
       background="#fff",
@@ -20,8 +21,45 @@ def page():
       )
     ):
       header()
-      dialog_box()
+      prompt_box()
   footer()
+
+@me.content_component
+def dialog(is_open: bool):
+  """Renders a dialog component.
+
+  Args:
+    is_open: Whether the dialog is visible or not.
+  """
+  with me.box(
+    style=me.Style(
+      display="block" if is_open else "none",
+      margin=me.Margin.symmetric(horizontal=500, vertical=76),
+      height="100%",
+      position="fixed",
+      width="100%",
+    )
+  ):
+    with me.box(
+      style=me.Style(
+        place_items="center",
+        display="grid",
+        height="90vh",
+      )
+    ):
+      with me.box(
+        style=me.Style(
+          background=me.theme_var("surface-container-lowest"),
+          border_radius=20,
+          box_sizing="content-box",
+          box_shadow=(
+            "0 3px 1px -2px #0003, 0 2px 2px #00000024, 0 1px 5px #0000001f"
+          ),
+
+          padding=me.Padding.all(20),
+        )
+      ):
+        me.slot()
 
 def header():
   with me.box(
@@ -34,6 +72,25 @@ def header():
   ):
     me.text(
       "Meal Genie",
+      style=me.Style(
+        font_size=36,
+        font_weight=700,
+        background="linear-gradient(90deg, #4285F4, #AA5CDB, #DB4437) text",
+        color="transparent",
+      ),
+    )
+
+def prompt_box():
+  with me.box(
+    style=me.Style(
+      padding=me.Padding(
+        top=24,
+        bottom=36,
+      ),
+    )
+  ):
+    me.text(
+      "Prompt",
       style=me.Style(
         font_size=36,
         font_weight=700,
@@ -88,40 +145,3 @@ def on_click_open_dialog(e: me.ClickEvent):
   state = me.state(State)
   state.is_open = True
 
-
-@me.content_component
-def dialog(is_open: bool):
-  """Renders a dialog component.
-
-  Args:
-    is_open: Whether the dialog is visible or not.
-  """
-  with me.box(
-    style=me.Style(
-      display="block" if is_open else "none",
-      height="100%",
-      position="fixed",
-      width="100%",
-      z_index=1000,
-    )
-  ):
-    with me.box(
-      style=me.Style(
-        place_items="center",
-        display="grid",
-        height="90vh",
-      )
-    ):
-      with me.box(
-        style=me.Style(
-          background=me.theme_var("surface-container-lowest"),
-          border_radius=20,
-          box_sizing="content-box",
-          box_shadow=(
-            "0 3px 1px -2px #0003, 0 2px 2px #00000024, 0 1px 5px #0000001f"
-          ),
-          margin=me.Margin.symmetric(vertical="0", horizontal="auto"),
-          padding=me.Padding.all(20),
-        )
-      ):
-        me.slot()
