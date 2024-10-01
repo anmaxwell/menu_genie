@@ -100,7 +100,7 @@ def prompt_box():
           border=me.Border.all(me.BorderSide(width=1, style="solid")),
           ),
         )
-    with me.content_button(type="icon"):
+    with me.content_button(type="icon", on_click=navigate):
       me.icon("send")
 
 def set_gemini_api_key(e: me.InputBlurEvent):
@@ -149,3 +149,9 @@ def on_click_open_dialog(e: me.ClickEvent):
   state = me.state(State)
   state.is_open = True
 
+def navigate(event: me.ClickEvent):
+  me.navigate("/about")
+
+@me.page(path="/about")
+def about():
+  me.text("This is the about page")
