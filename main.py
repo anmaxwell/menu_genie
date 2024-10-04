@@ -1,7 +1,10 @@
+import time
 import mesop as me
 
 @me.stateclass
 class State:
+  input: str
+  output: str
   is_open: bool = False
   gemini_api_key: str = ""
 
@@ -22,6 +25,7 @@ def page():
     ):
       header()
       prompt_box()
+      output()
   footer()
 
 @me.content_component
@@ -81,6 +85,7 @@ def header():
     )
 
 def prompt_box():
+  state = me.state(State)
   with me.box(
     style=me.Style(
       border_radius=16,
@@ -92,6 +97,7 @@ def prompt_box():
   ):
     with me.box(style=me.Style(flex_grow=1)):
       me.native_textarea(
+        value=state.input,
         placeholder="Enter your ingredients here for a delicious recipe...",
         style=me.Style(
           padding=me.Padding(top=16, left=16),
@@ -99,9 +105,34 @@ def prompt_box():
           height=150,
           border=me.Border.all(me.BorderSide(width=1, style="solid")),
           ),
+          on_blur=textarea_on_blur,
         )
-    with me.content_button(type="icon", on_click=navigate):
+    with me.content_button(type="icon", on_click=click_input_box):
       me.icon("send")
+
+def textarea_on_blur(e: me.InputBlurEvent):
+  state = me.state(State)
+  state.input = e.value
+
+def click_input_box(e: me.ClickEvent):
+  state = me.state(State)
+  state.in_progress = True
+  input = state.input
+  state.input = ""
+  yield
+
+  for chunk in call_api(input):
+    state.output += chunk
+    yield
+  state.in_progress = False
+  yield
+
+def call_api(input):
+  # Replace this with an actual API call
+  time.sleep(0.5)
+  yield "Example of streaming an output"
+  time.sleep(1)
+  yield "\n\nOutput: " + input
 
 def set_gemini_api_key(e: me.InputBlurEvent):
     me.state(State).gemini_api_key = e.value
@@ -117,6 +148,20 @@ def dialog_box():
             on_blur=set_gemini_api_key,
         )
         me.button("Confirm", on_click=on_click_close_dialog)
+
+def output():
+  state = me.state(State)
+  if state.output:
+    with me.box(
+      style=me.Style(
+        background="#F0F4F9",
+        padding=me.Padding.all(16),
+        border_radius=16,
+        margin=me.Margin(top=36),
+      )
+    ):
+      if state.output:
+        me.markdown(state.output)
 
 def footer():
   with me.box(
