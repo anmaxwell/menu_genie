@@ -166,6 +166,7 @@ def output():
 def footer():
   with me.box(
     style=me.Style(
+      display="flex", flex_direction="row",
       position="sticky",
       bottom=0,
       padding=me.Padding.symmetric(vertical=16, horizontal=16),
@@ -174,16 +175,12 @@ def footer():
       font_size=14,
     )
   ):
-    me.html(
-      "Made with <a href='https://google.github.io/mesop/'>Mesop</a>",
-    )
-    with me.box(
-     style=me.Style(
-        display="flex",
-        flex_direction="row",
-        justify_content="right")
-    ):
-     me.button("API Key", type="stroked", color="primary", on_click=on_click_open_dialog)
+    with me.box(style=me.Style(width="90%")):
+      me.html(
+        "Made with <a href='https://google.github.io/mesop/'>Mesop</a>",
+      )
+    with me.box(style=me.Style(width="10%")):
+      me.button("API Key", type="stroked", color="primary", on_click=on_click_open_dialog)
 
 def on_click_close_dialog(e: me.ClickEvent):
   state = me.state(State)
@@ -194,20 +191,3 @@ def on_click_open_dialog(e: me.ClickEvent):
   state = me.state(State)
   state.is_open = True
 
-def navigate(event: me.ClickEvent):
-  me.navigate("/about")
-
-@me.page(path="/about")
-def page():
-  with me.box(style=me.Style(display="flex", flex_direction="row")):
-    with me.box(style=me.Style(background="red", height=50, width="75%")):
-      me.text("test text")
-    with me.box(style=me.Style(background="blue", height=100, width="25%")):
-      me.text("second test",
-      style=me.Style(
-        font_size=36,
-        font_weight=700,
-        background="linear-gradient(90deg, #4285F4, #AA5CDB, #DB4437) text",
-        color="transparent",
-        text_align="right"
-      ),)
