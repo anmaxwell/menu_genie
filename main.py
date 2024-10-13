@@ -1,12 +1,8 @@
 import time
+import gemini
 import mesop as me
 
-@me.stateclass
-class State:
-  input: str
-  output: str
-  is_open: bool = False
-  gemini_api_key: str = ""
+from data_model import State
 
 @me.page(path="/")
 def page():
@@ -65,6 +61,8 @@ def dialog(is_open: bool):
       ):
         me.slot()
 
+import mesop as me
+
 def header():
   with me.box(
     style=me.Style(
@@ -84,6 +82,25 @@ def header():
       ),
     )
 
+def footer():
+  with me.box(
+    style=me.Style(
+      display="flex", flex_direction="row",
+      position="sticky",
+      bottom=0,
+      padding=me.Padding.symmetric(vertical=16, horizontal=16),
+      width="100%",
+      background="#F0F4F9",
+      font_size=14,
+    )
+  ):
+    with me.box(style=me.Style(width="90%")):
+      me.html(
+        "Made with <a href='https://google.github.io/mesop/'>Mesop</a>",
+      )
+    with me.box(style=me.Style(width="10%")):
+      me.button("API Key", type="stroked", color="primary", on_click=on_click_open_dialog)
+
 def prompt_box():
   state = me.state(State)
   with me.box(
@@ -98,7 +115,7 @@ def prompt_box():
     with me.box(style=me.Style(flex_grow=1)):
       me.native_textarea(
         value=state.input,
-        placeholder="Enter your ingredients here for a delicious recipe...",
+        placeholder="Enter your ingredients here...",
         style=me.Style(
           padding=me.Padding(top=16, left=16),
           width="100%",
@@ -122,17 +139,20 @@ def click_input_box(e: me.ClickEvent):
   yield
 
   for chunk in call_api(input):
-    state.output += chunk
-    yield
+    if chunk != None:
+      state.output += chunk
+      yield
   state.in_progress = False
   yield
 
 def call_api(input):
-  # Replace this with an actual API call
   time.sleep(0.5)
-  yield "Example of streaming an output"
-  time.sleep(1)
-  yield "\n\nOutput: " + input
+  yield "A delicious meal for you to try..." + "\n\n"
+  llm_response = gemini.send_prompt_flash(input)
+  for chunk in llm_response:
+    yield chunk
+    time.sleep(1)
+  yield
 
 def set_gemini_api_key(e: me.InputBlurEvent):
     me.state(State).gemini_api_key = e.value
@@ -163,25 +183,6 @@ def output():
       if state.output:
         me.markdown(state.output)
 
-def footer():
-  with me.box(
-    style=me.Style(
-      display="flex", flex_direction="row",
-      position="sticky",
-      bottom=0,
-      padding=me.Padding.symmetric(vertical=16, horizontal=16),
-      width="100%",
-      background="#F0F4F9",
-      font_size=14,
-    )
-  ):
-    with me.box(style=me.Style(width="90%")):
-      me.html(
-        "Made with <a href='https://google.github.io/mesop/'>Mesop</a>",
-      )
-    with me.box(style=me.Style(width="10%")):
-      me.button("API Key", type="stroked", color="primary", on_click=on_click_open_dialog)
-
 def on_click_close_dialog(e: me.ClickEvent):
   state = me.state(State)
   state.is_open = False
@@ -191,3 +192,12 @@ def on_click_open_dialog(e: me.ClickEvent):
   state = me.state(State)
   state.is_open = True
 
+def send_prompt(e: me.ClickEvent):
+    state = me.state(State)
+    input = state.input
+    state.input = ""
+    messages = []
+    llm_response = gemini.send_prompt_flash(input)
+    for chunk in llm_response:
+      messages[-1].content += chunk
+    yield
